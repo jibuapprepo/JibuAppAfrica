@@ -156,15 +156,6 @@ export class AddonBlockTimelineComponent extends CoreBlockBaseComponent implemen
     }
 
     /**
-     * Search text changed.
-     *
-     * @param search New search.
-     */
-    searchChanged(search: string): void {
-        this.search.set(search);
-    }
-
-    /**
      * @inheritdoc
      */
     async invalidateContent(): Promise<void> {
