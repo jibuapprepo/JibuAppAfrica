@@ -16,12 +16,13 @@ import {
     AfterViewInit,
     Component,
     CUSTOM_ELEMENTS_SCHEMA,
-    ViewChild,
     ElementRef,
     OnInit,
     OnDestroy,
     inject,
     viewChild,
+    signal,
+    effect,
 } from '@angular/core';
 import { IonTextarea } from '@ionic/angular';
 import { CoreUtils } from '@singletons/utils';
@@ -66,23 +67,8 @@ export class CoreEditorClassicEditorComponent extends CoreEditorBaseComponent im
     protected textareaElement?: HTMLTextAreaElement;
     readonly textarea = viewChild<IonTextarea>('textarea'); // Textarea editor.
 
-    protected toolbarSlides?: Swiper;
-    @ViewChild('swiperRef') set swiperRef(swiperRef: ElementRef) {
-        /**
-         * This setTimeout waits for Ionic's async initialization to complete.
-         * Otherwise, an outdated swiper reference will be used.
-         */
-        setTimeout(async () => {
-            await this.waitLoadingsDone();
-
-            const swiper = CoreSwiper.initSwiperIfAvailable(this.toolbarSlides, swiperRef, this.swiperOpts);
-            if (!swiper) {
-                return;
-            }
-
-            this.toolbarSlides = swiper;
-        });
-    }
+    protected readonly swiperRef = viewChild<ElementRef>('swiperRef'); // Reference to the swiper element.
+    protected readonly toolbarSlides = signal<Swiper | undefined>(undefined);
 
     protected static readonly RESTORE_MESSAGE_CLEAR_TIME = 6000;
     protected static readonly SAVE_MESSAGE_CLEAR_TIME = 2000;
@@ -129,6 +115,19 @@ export class CoreEditorClassicEditorComponent extends CoreEditorBaseComponent im
         centerInsufficientSlides: true,
         watchSlidesProgress: true,
     };
+
+    constructor() {
+        super();
+
+        effect(() => {
+            const swiper = CoreSwiper.initSwiperIfAvailable(this.toolbarSlides(), this.swiperRef(), this.swiperOpts);
+            if (!swiper) {
+                return;
+            }
+
+            this.toolbarSlides.set(swiper);
+        });
+    }
 
     /**
      * @inheritdoc
@@ -440,8 +439,9 @@ export class CoreEditorClassicEditorComponent extends CoreEditorBaseComponent im
         this.stopBubble(event);
 
         if (!this.toolbarNextHidden) {
-            const currentIndex = this.toolbarSlides?.activeIndex;
-            this.toolbarSlides?.slideTo((currentIndex || 0) + this.toolbarSlides.slidesPerViewDynamic());
+            const toolbarSlides = this.toolbarSlides();
+            const currentIndex = toolbarSlides?.activeIndex;
+            toolbarSlides?.slideTo((currentIndex || 0) + toolbarSlides.slidesPerViewDynamic());
         }
 
         await this.updateToolbarArrows();
@@ -458,8 +458,10 @@ export class CoreEditorClassicEditorComponent extends CoreEditorBaseComponent im
         this.stopBubble(event);
 
         if (!this.toolbarPrevHidden) {
-            const currentIndex = this.toolbarSlides?.activeIndex;
-            this.toolbarSlides?.slideTo((currentIndex || 0) - this.toolbarSlides.slidesPerViewDynamic());
+            const toolbarSlides = this.toolbarSlides();
+
+            const currentIndex = toolbarSlides?.activeIndex;
+            toolbarSlides?.slideTo((currentIndex || 0) - toolbarSlides.slidesPerViewDynamic());
         }
 
         await this.updateToolbarArrows();
@@ -470,13 +472,15 @@ export class CoreEditorClassicEditorComponent extends CoreEditorBaseComponent im
      */
     async updateToolbarButtons(): Promise<void> {
         const toolbar = this.toolbar();
-        if (!this.isCurrentView || !toolbar || !this.toolbarSlides ||
+        const toolbarSlides = this.toolbarSlides();
+
+        if (!this.isCurrentView || !toolbar || !toolbarSlides ||
             this.toolbarHidden || this.element.offsetParent === null) {
             // Don't calculate if component isn't in current view, the calculations are wrong.
             return;
         }
 
-        const length = this.toolbarSlides.slides.length;
+        const length = toolbarSlides.slides.length;
 
         // Cancel previous one, if any.
         this.buttonsDomPromise?.cancel();
@@ -495,7 +499,7 @@ export class CoreEditorClassicEditorComponent extends CoreEditorBaseComponent im
 
         await CoreWait.nextTick();
 
-        this.toolbarSlides.update();
+        toolbarSlides.update();
 
         await this.updateToolbarArrows();
     }
@@ -504,14 +508,15 @@ export class CoreEditorClassicEditorComponent extends CoreEditorBaseComponent im
      * Show or hide next/previous toolbar arrows.
      */
     async updateToolbarArrows(): Promise<void> {
-        if (!this.toolbarSlides) {
+        const toolbarSlides = this.toolbarSlides();
+        if (!toolbarSlides) {
             return;
         }
 
-        const currentIndex = this.toolbarSlides.activeIndex;
-        const length = this.toolbarSlides.slides.length;
+        const currentIndex = toolbarSlides.activeIndex;
+        const length = toolbarSlides.slides.length;
         this.toolbarPrevHidden = currentIndex <= 0;
-        this.toolbarNextHidden = currentIndex + this.toolbarSlides.slidesPerViewDynamic() >= length;
+        this.toolbarNextHidden = currentIndex + toolbarSlides.slidesPerViewDynamic() >= length;
     }
 
     /**

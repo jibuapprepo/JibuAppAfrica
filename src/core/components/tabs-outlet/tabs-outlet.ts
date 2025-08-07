@@ -141,9 +141,10 @@ export class CoreTabsOutletComponent extends CoreTabsBaseComponent<CoreTabsOutle
     ngOnChanges(changes: Record<string, SimpleChange>): void {
         if (changes.tabs) {
             this.calculateSlides();
-        }
 
-        super.ngOnChanges(changes);
+            // @TODO: While tabs is not a signal, use this.
+            super.init();
+        }
     }
 
     /**

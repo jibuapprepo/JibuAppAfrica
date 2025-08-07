@@ -16,9 +16,9 @@ import {
     Component,
     Input,
     AfterViewInit,
-    ViewChild,
     ElementRef,
     CUSTOM_ELEMENTS_SCHEMA,
+    viewChild,
 } from '@angular/core';
 
 import { CoreTabsBaseComponent } from '@classes/tabs';
@@ -58,19 +58,7 @@ export class CoreTabsComponent extends CoreTabsBaseComponent<CoreTabComponent> i
     @Input({ transform: toBoolean }) parentScrollable = false; // Determine if scroll should be in the parent content or the tab.
     @Input() layout: 'icon-top' | 'icon-start' | 'icon-end' | 'icon-bottom' | 'icon-hide' | 'label-hide' = 'icon-hide';
 
-    @ViewChild('originalTabs') set originalTabs(originalTabs: ElementRef) {
-        /**
-         * This setTimeout waits for Ionic's async initialization to complete.
-         * Otherwise, an outdated swiper reference will be used.
-         */
-        setTimeout(() => {
-            if (originalTabs.nativeElement && !this.originalTabsContainer) {
-                this.originalTabsContainer = this.originalTabs?.nativeElement;
-            }
-        }, 0);
-    }
-
-    protected originalTabsContainer?: HTMLElement; // The container of the original tabs. It will include each tab's content.
+    protected readonly originalTabsRef = viewChild<ElementRef<HTMLDivElement>>('originalTabs');
 
     /**
      * View has been initialized.
@@ -130,14 +118,15 @@ export class CoreTabsComponent extends CoreTabsBaseComponent<CoreTabComponent> i
      * Sort the tabs, keeping the same order as in the original list.
      */
     protected sortTabs(): void {
-        if (!this.originalTabsContainer) {
+        const originalTabsContainer = this.originalTabsRef()?.nativeElement;
+        if (!originalTabsContainer) {
             return;
         }
 
         const newTabs: CoreTabComponent[] = [];
 
         this.tabs.forEach((tab) => {
-            const originalIndex = Array.prototype.indexOf.call(this.originalTabsContainer?.children, tab.element);
+            const originalIndex = Array.prototype.indexOf.call(originalTabsContainer?.children, tab.element);
             if (originalIndex != -1) {
                 newTabs[originalIndex] = tab;
             }
