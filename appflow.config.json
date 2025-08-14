@@ -1,0 +1,8 @@
+{
+  "app_id": "121cfc16",
+  "root": ".",
+  "name": "JibuAfrica",
+  "integrations": {
+    "cordova": {}
+  }
+}
