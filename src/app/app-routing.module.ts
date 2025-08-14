@@ -37,9 +37,11 @@ function buildConditionalUrlMatcher(pathOrMatcher: string | UrlMatcher, conditio
         if (!condition()) {
             return null;
         }
+
         if (typeof pathOrMatcher === 'function') {
             return pathOrMatcher(segments, segmentGroup, route);
         }
+
         const path = pathOrMatcher;
         const parts = path.split('/');
         const isFullMatch = route.pathMatch === 'full';
@@ -54,16 +56,19 @@ function buildConditionalUrlMatcher(pathOrMatcher: string | UrlMatcher, conditio
         if (isFullMatch && (segmentGroup.hasChildren() || parts.length < segments.length)) {
             return null;
         }
+
         for (let index = 0; index < parts.length; index++) {
             const part = parts[index];
             const segment = segments[index];
             const isParameter = part.startsWith(':');
+
             if (isParameter) {
                 posParams[part.substring(1)] = segment;
             } else if (part !== segment.path) {
                 return null;
             }
         }
+
         return { consumed: segments.slice(0, parts.length), posParams };
     };
 }
@@ -71,7 +76,7 @@ function buildConditionalUrlMatcher(pathOrMatcher: string | UrlMatcher, conditio
 export type LazyRoutesModule = Type<any> |
     Routes |
     Observable<Type<any> | Routes | DefaultExport<Type<any>> | DefaultExport<Routes>> |
-    Promise<Type<any> | Routes | DefaultExport<Type<any>> |DefaultExport<Routes>>;
+    Promise<Type<any> | Routes | DefaultExport<Type<any>> | DefaultExport<Routes>>;
 
 export type LazyDefaultStandaloneComponent = Promise<DefaultExport<Type<unknown>>>;
 
@@ -80,20 +85,26 @@ export function buildRegExpUrlMatcher(regexp: RegExp): UrlMatcher {
         if (segments.length === 0) {
             return null;
         }
+
         const path = segments.map(segment => segment.path).join('/');
         const match = regexp.exec(path)?.[0];
+
         if (!match || !path.startsWith(match)) {
             return null;
         }
-        const [consumedSegments, consumedPath] = segments.slice(1).reduce(([segments, path], segment) => path === match
-            ? [segments, path]
-            : [
-                segments.concat(segment),
-                `${path}/${segment.path}`,
-            ], [[segments[0]] as UrlSegment[], segments[0].path]);
+
+        const [consumedSegments, consumedPath] = segments.slice(1).reduce(
+            ([segments, path], segment) =>
+                path === match
+                    ? [segments, path]
+                    : [segments.concat(segment), `${path}/${segment.path}`],
+            [[segments[0]] as UrlSegment[], segments[0].path]
+        );
+
         if (consumedPath !== match) {
             return null;
         }
+
         return { consumed: consumedSegments };
     };
 }
@@ -105,9 +116,11 @@ export function conditionalRoutes(routes: Routes, condition: () => boolean): Rou
     return routes.map(route => {
         const { path, matcher, ...newRoute } = route;
         const matcherOrPath = matcher ?? path;
+
         if (matcherOrPath === undefined) {
             throw new Error('Route defined without matcher nor path');
         }
+
         return {
             ...newRoute,
             matcher: buildConditionalUrlMatcher(matcherOrPath, condition),
@@ -127,6 +140,7 @@ export function resolveModuleRoutes(injector: Injector, token: InjectionToken<Mo
     if (modulesRoutes.has(token)) {
         return modulesRoutes.get(token) as ModuleRoutes;
     }
+
     const configs = injector.get(token, []);
     const routes = configs.map(config => {
         if (Array.isArray(config)) {
@@ -135,27 +149,35 @@ export function resolveModuleRoutes(injector: Injector, token: InjectionToken<Mo
                 siblings: config,
             };
         }
+
         return {
             children: config.children || [],
             siblings: config.siblings || [],
         };
     });
+
     const moduleRoutes = {
         children: routes.map(r => r.children).flat(),
         siblings: routes.map(r => r.siblings).flat(),
     };
+
     modulesRoutes.set(token, moduleRoutes);
+
     return moduleRoutes;
 }
 
 export const APP_ROUTES = new InjectionToken('APP_ROUTES');
 
-// 👇 ADD your Jibu custom route
+/**
+ * Custom Jibu feature route.
+ * Make sure src/core/features/jibu/jibu.module.ts exists
+ * and exports JibuPageModule.
+ */
 export const JIBU_ROUTES: Routes = [
     {
-        path: '',
-        loadChildren: () => import('../core/features/jibu/jibu.module').then(m => m.JibuPageModule)
-    }
+        path: 'jibu',
+        loadChildren: () => import('src/core/features/jibu/jibu.module').then(m => m.JibuPageModule),
+    },
 ];
 
 @NgModule({
@@ -163,7 +185,7 @@ export const JIBU_ROUTES: Routes = [
         RouterModule.forRoot([]),
     ],
     providers: [
-        // 👇 Make Jibu the first route checked
+        // Custom Jibu route first
         { provide: ROUTES, multi: true, useValue: JIBU_ROUTES },
 
         // Moodle default routes after
