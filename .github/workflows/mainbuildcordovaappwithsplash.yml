@@ -1,0 +1,66 @@
+name: Build Moodle Mobile APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Set up Node.js 22
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.17.0
+
+      # 3️⃣ Install global CLI tools: Ionic & Cordova
+      - name: Install global CLI tools
+        run: |
+          npm install -g @ionic/cli
+          npm install -g cordova@11
+
+      # 4️⃣ Install project dependencies
+      - name: Install npm dependencies
+        run: npm ci
+
+      # 5️⃣ Build Ionic web assets
+      - name: Build Ionic project
+        run: ionic build
+
+      # 6️⃣ Set up Java JDK 17
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # 7️⃣ Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 33
+          build-tools: 33.0.2
+
+      # 8️⃣ Add Android platform (Cordova)
+      - name: Add Android platform
+        run: |
+          cordova platform remove android || true
+          cordova platform add android@14.0.0 --no-save
+
+      # 9️⃣ Build the APK (release APK)
+      - name: Build Android APK
+        run: cordova build android --release -- --packageType=apk
+
+      # 🔟 Upload APK artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: moodleapp-release-apk
+          path: platforms/android/app/build/outputs/**/*.apk
