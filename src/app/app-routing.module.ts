@@ -175,9 +175,9 @@ export const APP_ROUTES = new InjectionToken('APP_ROUTES');
  */
 export const JIBU_ROUTES: Routes = [
     {
-        path: 'jibu',
-        loadChildren: () => import('../core/features/jibu/jibu.module').then(m => m.JibuPageModule),
-    },
+  path: 'jibu',
+  loadChildren: () => import('../core/features/jibu/jibu.module').then(m => m.JibuPageModule)
+},
 ];
 
 @NgModule({
