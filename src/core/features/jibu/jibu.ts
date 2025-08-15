@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 @Component({
   selector: 'app-jibu',
   templateUrl: './jibu.html',
-  styleUrls: ['./jibu.scss'],
+  styleUrls: ['./jibu.scss']
 })
 export class JibuPage implements OnInit, OnDestroy {
 
@@ -107,11 +107,14 @@ export class JibuPage implements OnInit, OnDestroy {
 
     try {
       const payload = new URLSearchParams({ username: identifier, password });
-      const res = await fetch('https://jibumulti.napvibe.com/login/token.php?service=moodle_mobile_app', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: payload.toString(),
-      });
+      const res = await fetch(
+        'https://jibumulti.napvibe.com/login/token.php?service=moodle_mobile_app',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: payload.toString(),
+        }
+      );
       const data = await res.json();
 
       if ((data as any).token) {
@@ -134,7 +137,8 @@ export class JibuPage implements OnInit, OnDestroy {
 
   openGoogleOAuth() {
     this.clearError();
-    const clientId = '854860788162-0iee0ks4075qhoagmtmm3urmqf1vuklu.apps.googleusercontent.com';
+    const clientId =
+      '854860788162-0iee0ks4075qhoagmtmm3urmqf1vuklu.apps.googleusercontent.com';
     const redirectUri = encodeURIComponent('https://jibumulti.napvibe.com/oauth/google.html');
     const scope = encodeURIComponent('email profile');
     const state = Math.random().toString(36).substring(2);
@@ -154,7 +158,11 @@ export class JibuPage implements OnInit, OnDestroy {
     const height = 600;
     const left = (window.screen.width - width) / 2;
     const top = (window.screen.height - height) / 2;
-    const popup = window.open(authUrl, 'googleLogin', `width=${width},height=${height},left=${left},top=${top},resizable=yes`);
+    const popup = window.open(
+      authUrl,
+      'googleLogin',
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes`
+    );
 
     if (!popup || popup.closed || typeof popup.closed === 'undefined') {
       this.showError('Popup blocked! Please allow popups and try again.');
