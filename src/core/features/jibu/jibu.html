@@ -1,101 +1,43 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Login to get started</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content class="page">
-  <div class="container" aria-label="Login container">
-
-    <!-- Header / Logo -->
-    <div class="header">
-      <div class="back-button" role="button" (click)="goBack()">←</div>
-      <img [src]="headerLogo" class="top-logo" alt="Logo" />
-      <h1>Login to get started</h1>
-      <p class="login-title" [innerHTML]="loginTitle"></p>
+  <div class="container">
+    <div class="top-image">
+      <img src="assets/images/nurse.png" alt="Nurse" class="nurse-img"/>
     </div>
 
-    <!-- Tabs for Login / Register -->
-    <div class="tabs" role="tablist">
-      <button class="active" aria-selected="true">Login</button>
-      <button (click)="goToRegistration()">Register</button>
+    <img src="assets/images/jibu-logo.png" alt="Jibu Logo" class="logo"/>
+
+    <ion-button expand="block" color="primary" class="continue-btn" (click)="goToIndex2()">
+      Continue to Jibu <span>&rarr;</span>
+    </ion-button>
+
+    <div class="divider">
+      <hr class="line"/><span>or</span><hr class="line"/>
     </div>
 
-    <!-- Login Form -->
-    <div class="form">
-
-      <!-- Error message -->
-      <div *ngIf="errorText" class="error">{{ errorText }}</div>
-
-      <!-- Identifier input -->
-      <div class="input-group">
-        <svg class="icon" viewBox="0 0 24 16" aria-hidden="true">
-          <rect x="1" y="2" width="22" height="12" rx="2" ry="2" stroke-width="2" fill="none"></rect>
-          <path d="M1 2l11 8 11-8" stroke-width="2" fill="none"></path>
+    <div class="search-box">
+      <span class="menu-icon">&#9776;</span>
+      <ion-input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ionFocus)="onFocus()"
+        (ionInput)="filterDropdown()"
+        placeholder="Search for Your Institution">
+      </ion-input>
+      <span class="search-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input
-          type="text"
-          placeholder="E-mail or Username"
-          [(ngModel)]="identifier"
-          aria-label="Email or Username"
-          autocomplete="username" />
-      </div>
-
-      <!-- Password input -->
-      <div class="input-group">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="6" y="10" width="12" height="10" rx="2" ry="2" stroke-width="2" fill="none"></rect>
-          <path d="M12 16v-4" stroke-width="2"></path>
-          <path d="M8 10v-2a4 4 0 1 1 8 0v2" stroke-width="2"></path>
-        </svg>
-        <input
-          [type]="passwordVisible ? 'text' : 'password'"
-          placeholder="Password"
-          [(ngModel)]="password"
-          aria-label="Password"
-          autocomplete="current-password" />
-        <svg class="eye" viewBox="0 0 24 24" aria-hidden="true" (click)="togglePassword()">
-          <ng-container *ngIf="!passwordVisible; else eyeOff">
-            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" stroke-width="2"></path>
-            <circle cx="12" cy="12" r="3" stroke-width="2"></circle>
-          </ng-container>
-          <ng-template #eyeOff>
-            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.91 21.91 0 0 1 5.11-5.11M9.53 9.53a3.5 3.5 0 0 1 4.94 4.94M1 1l22 22" stroke="currentColor" stroke-width="2"></path>
-          </ng-template>
-        </svg>
-      </div>
-
-      <!-- Remember me / forgot password -->
-      <div class="remember">
-        <label>
-          <input type="checkbox" [(ngModel)]="rememberMe"> Remember me
-        </label>
-        <span role="button" (click)="forgotPassword()">Forgot Password?</span>
-      </div>
-
-      <!-- Login button -->
-      <button
-        class="login-button"
-        [disabled]="loggingIn"
-        (click)="handleLogin()"
-        aria-label="Login with email/username and password">
-        <span *ngIf="!loggingIn; else logging">Login</span>
-        <ng-template #logging>
-          <span>Logging in...</span>
-          <span class="spinner"></span>
-        </ng-template>
-      </button>
-
-      <!-- Social login -->
-      <div class="social-buttons">
-        <div class="social-button" (click)="openGoogleOAuth()" aria-label="Login with Google">
-          <img src="https://img.icons8.com/color/24/google-logo.png" alt="Google"/> Google
+      </span>
+      <div class="dropdown-list" [class.show]="dropdownVisible">
+        <div *ngIf="filteredPartners.length === 0" class="dropdown-item text-muted">No results</div>
+        <div *ngFor="let partner of filteredPartners" class="dropdown-item" (click)="selectPartner(partner)">
+          {{ partner.name }}
         </div>
       </div>
-
-      <!-- Explore courses -->
-      <button class="explore-button" (click)="exploreCourses()">Explore Courses</button>
-
     </div>
+
+    <p class="footer-text">Building Africa’s Health Workforce</p>
+    <div class="footer-band"></div>
   </div>
 </ion-content>
