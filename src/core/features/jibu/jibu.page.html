@@ -1,34 +1,43 @@
+<ion-content class="page">
+  <div class="container">
+    <div class="top-image">
+      <img src="assets/images/nurse.png" alt="Nurse" class="nurse-img"/>
+    </div>
 
-<div class="container">
-  <div class="top-image">
-    <img src="assets/images/nurse.png" alt="Nurse" class="nurse-img"/>
-  </div>
+    <img src="assets/images/jibu-logo.png" alt="Jibu Logo" class="logo"/>
 
-  <img src="assets/images/jibu-logo.png" alt="Jibu Logo" class="logo"/>
+    <ion-button expand="block" color="primary" class="continue-btn" (click)="goToIndex2()">
+      Continue to Jibu <span>&rarr;</span>
+    </ion-button>
 
-  <button class="continue-btn" (click)="goToIndex2()">Continue to Jibu <span>&rarr;</span></button>
+    <div class="divider">
+      <hr class="line"/><span>or</span><hr class="line"/>
+    </div>
 
-  <div class="divider">
-    <hr class="line"/><span>or</span><hr class="line"/>
-  </div>
-
-  <div class="search-box">
-    <span class="menu-icon">&#9776;</span>
-    <input type="text" [(ngModel)]="searchQuery" (focus)="onFocus()" (input)="filterDropdown()" placeholder="Search for Your Institution" />
-    <span class="search-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
-    </span>
-    <div class="dropdown-list" [class.show]="dropdownVisible">
-      <div *ngIf="filteredPartners.length === 0" class="dropdown-item text-muted">No results</div>
-      <div *ngFor="let partner of filteredPartners" class="dropdown-item" (click)="selectPartner(partner)">
-        {{ partner.name }}
+    <div class="search-box">
+      <span class="menu-icon">&#9776;</span>
+      <ion-input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ionFocus)="onFocus()"
+        (ionInput)="filterDropdown()"
+        placeholder="Search for Your Institution">
+      </ion-input>
+      <span class="search-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </span>
+      <div class="dropdown-list" [class.show]="dropdownVisible">
+        <div *ngIf="filteredPartners.length === 0" class="dropdown-item text-muted">No results</div>
+        <div *ngFor="let partner of filteredPartners" class="dropdown-item" (click)="selectPartner(partner)">
+          {{ partner.name }}
+        </div>
       </div>
     </div>
-  </div>
 
-  <p class="footer-text">Building Africa’s Health Workforce</p>
-  <div class="footer-band"></div>
-</div>
+    <p class="footer-text">Building Africa’s Health Workforce</p>
+    <div class="footer-band"></div>
+  </div>
+</ion-content>
