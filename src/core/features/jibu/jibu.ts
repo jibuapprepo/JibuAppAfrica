@@ -1,28 +1,28 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-jibu',
   templateUrl: './jibu.html',
   styleUrls: ['./jibu.scss'],
 })
-export class JibuPage implements OnInit {
+export class JibuPage implements OnInit, OnDestroy {
 
   // UI model
-  identifier: string = '';
-  password: string = '';
-  rememberMe: boolean = false;
-  loggingIn: boolean = false;
-  passwordVisible: boolean = false;
-  errorText: string = '';
+  identifier = '';
+  password = '';
+  rememberMe = false;
+  loggingIn = false;
+  passwordVisible = false;
+  errorText = '';
 
   // Partner theming
-  headerLogo: string = 'https://img.icons8.com/color/48/microsoft-office-2019.png';
-  loginTitle: string = 'Kenyatta University';
+  headerLogo = 'https://img.icons8.com/color/48/microsoft-office-2019.png';
+  loginTitle = 'Kenyatta University';
 
   constructor(private zone: NgZone) {}
 
   ngOnInit(): void {
-    // Apply partner theming from sessionStorage (same logic you had)
+    // Apply partner theming from sessionStorage
     try {
       const raw = sessionStorage.getItem('selectedPartner') || '{}';
       const partner = JSON.parse(raw);
@@ -30,8 +30,10 @@ export class JibuPage implements OnInit {
       if (partner?.headingcolor) document.documentElement.style.setProperty('--heading-color', partner.headingcolor);
       if (partner?.linkcolor) document.documentElement.style.setProperty('--link-color', partner.linkcolor);
       if (partner?.logo_url) this.headerLogo = partner.logo_url;
-      if (partner?.name) this.loginTitle = `${partner.name} <span style="font-weight: normal; font-size: 13px;"> Learning Portal</span>`;
-    } catch (e) {
+      if (partner?.name) {
+        this.loginTitle = `${partner.name} <span style="font-weight: normal; font-size: 13px;"> Learning Portal</span>`;
+      }
+    } catch {
       // ignore bad JSON
     }
 
@@ -50,7 +52,7 @@ export class JibuPage implements OnInit {
         this.showError(error);
         return;
       }
-      if ((provider === 'google') && token && email) {
+      if (provider === 'google' && token && email) {
         const userData = { token, email, name, provider };
         localStorage.setItem('jibuLogin', JSON.stringify(userData));
         window.location.href = '/partner/dashboard.html';
@@ -63,7 +65,6 @@ export class JibuPage implements OnInit {
   }
 
   goToRegistration() {
-    // If you have an Ionic route, change this to routerLink or Router.navigateByUrl('/registration')
     window.location.href = 'registration.html';
   }
 
@@ -90,8 +91,8 @@ export class JibuPage implements OnInit {
   async handleLogin() {
     this.clearError();
 
-    const identifier = (this.identifier || '').trim();
-    const password = (this.password || '').trim();
+    const identifier = this.identifier.trim();
+    const password = this.password.trim();
 
     if (!identifier || !password) {
       this.showError('Please fill in both identifier and password.');
@@ -124,7 +125,7 @@ export class JibuPage implements OnInit {
       } else {
         this.showError((data as any).error || 'Login failed. Please check credentials.');
       }
-    } catch (err) {
+    } catch {
       this.showError('Network error. Please try again.');
     } finally {
       this.loggingIn = false;
