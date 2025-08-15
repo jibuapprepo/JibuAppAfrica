@@ -3,13 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
-import { JibuPage } from './jibu'; // ✅ Matches jibu.ts
+import { HttpClientModule } from '@angular/common/http';
+import { JibuPage } from './jibu.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: JibuPage,
-  },
+  { path: '', component: JibuPage }
 ];
 
 @NgModule({
@@ -17,8 +15,9 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes),
+    HttpClientModule,
+    RouterModule.forChild(routes)
   ],
-  declarations: [JibuPage], // ✅ Declaring because it's NOT standalone
+  declarations: [JibuPage]
 })
 export class JibuPageModule {}
