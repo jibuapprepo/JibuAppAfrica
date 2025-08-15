@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
-import { JibuPage } from './jibu';
+import { JibuPage } from './jibu'; // ✅ Matches jibu.ts
 
 const routes: Routes = [
   {
@@ -19,6 +19,6 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes),
   ],
-  declarations: [JibuPage],
+  declarations: [JibuPage], // ✅ Declaring because it's NOT standalone
 })
 export class JibuPageModule {}
