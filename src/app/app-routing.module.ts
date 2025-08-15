@@ -174,7 +174,7 @@ export const APP_ROUTES = new InjectionToken('APP_ROUTES');
  * and exports JibuPageModule.
  */
 export const JIBU_ROUTES: Routes = [
-    {
+{
   path: 'jibu',
   loadChildren: () => import('../core/features/jibu/jibu.module').then(m => m.JibuPageModule)
 },
