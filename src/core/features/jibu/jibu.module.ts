@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
-import { JibuPage } from './jibu';
+import { JibuPage } from './jibu'; // Standalone component
 
 const routes: Routes = [
   {
@@ -14,13 +11,8 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
-    CommonModule,       // for *ngIf, *ngFor, etc.
-    FormsModule,        // for [(ngModel)]
-    IonicModule,        // for <ion-*> components
-    RouterModule.forChild(routes) // lazy-load route
-  ],
-  declarations: [
-    JibuPage            // declare the component here (non-standalone)
+    JibuPage, // Import standalone page here
+    RouterModule.forChild(routes)
   ]
 })
 export class JibuPageModule {}
