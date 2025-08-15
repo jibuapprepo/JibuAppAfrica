@@ -14,13 +14,13 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
-    CommonModule,   // for *ngIf, *ngFor, etc.
-    FormsModule,    // for [(ngModel)]
-    IonicModule,    // for <ion-*> components
-    RouterModule.forChild(routes)
+    CommonModule,       // for *ngIf, *ngFor, etc.
+    FormsModule,        // for [(ngModel)]
+    IonicModule,        // for <ion-*> components
+    RouterModule.forChild(routes) // lazy-load route
   ],
   declarations: [
-    JibuPage        // declare the component here (not standalone)
+    JibuPage            // declare the component here (non-standalone)
   ]
 })
 export class JibuPageModule {}
