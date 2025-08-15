@@ -12,43 +12,64 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { InjectionToken, Injector, ModuleWithProviders, NgModule } from '@angular/core';
-import { RouterModule, Routes, ROUTES } from '@angular/router';
-import { buildAppRoutes } from './build-app-routes'; // keep your helper function if exists
+import { InjectionToken, Injector, ModuleWithProviders, NgModule, Type } from '@angular/core';
+import {
+    RouterModule,
+    Route,
+    Routes,
+    ROUTES,
+    UrlMatcher,
+    UrlMatchResult,
+    UrlSegment,
+    UrlSegmentGroup,
+    DefaultExport,
+} from '@angular/router';
+import { Observable } from 'rxjs';
 
-export const APP_ROUTES = new InjectionToken<Routes>('APP_ROUTES');
+const modulesRoutes: WeakMap<InjectionToken<unknown>, ModuleRoutes> = new WeakMap();
 
 /**
- * Custom Jibu feature route using standalone component.
- * No more JibuPageModule, we directly load the standalone JibuPage.
+ * Build app routes.
+ *
+ * @param injector Module injector.
+ * @returns App routes.
  */
-export const JIBU_ROUTES: Routes = [
-  {
-    path: 'jibu',
-    loadComponent: () =>
-      import('../core/features/jibu/jibu').then(m => m.JibuPage)
-  },
-];
+function buildAppRoutes(injector: Injector): Routes {
+    return injector.get<Routes[]>(APP_ROUTES, []).flat();
+}
 
+// ... [keep all helper functions unchanged here] ...
+
+export const APP_ROUTES = new InjectionToken('APP_ROUTES');
+
+/**
+ * Module used to register routes at the root of the application.
+ */
 @NgModule({
-  imports: [
-    RouterModule.forRoot([]),
-  ],
-  providers: [
-    // Register Jibu standalone route first
-    { provide: ROUTES, multi: true, useValue: JIBU_ROUTES },
-
-    // Register any default Moodle/app routes after
-    { provide: ROUTES, multi: true, useFactory: buildAppRoutes, deps: [Injector] },
-  ],
+    imports: [
+        RouterModule.forRoot([]),
+        // 👇 Register the Jibu route here
+        AppRoutingModule.forChild([
+            {
+                path: 'jibu',
+                loadChildren: () =>
+                    import('src/core/features/jibu/jibu.module').then(m => m.JibuPageModule),
+            },
+        ]),
+    ],
+    providers: [
+        { provide: ROUTES, multi: true, useFactory: buildAppRoutes, deps: [Injector] },
+    ],
 })
 export class AppRoutingModule {
-  static forChild(routes: Routes): ModuleWithProviders<AppRoutingModule> {
-    return {
-      ngModule: AppRoutingModule,
-      providers: [
-        { provide: APP_ROUTES, multi: true, useValue: routes },
-      ],
-    };
-  }
+
+    static forChild(routes: Routes): ModuleWithProviders<AppRoutingModule> {
+        return {
+            ngModule: AppRoutingModule,
+            providers: [
+                { provide: APP_ROUTES, multi: true, useValue: routes },
+            ],
+        };
+    }
+
 }
