@@ -15,18 +15,20 @@
 import { InjectionToken, Injector, ModuleWithProviders, NgModule, Type } from '@angular/core';
 import {
     RouterModule,
-    Route,
     Routes,
     ROUTES,
     UrlMatcher,
     UrlMatchResult,
     UrlSegment,
     UrlSegmentGroup,
-    DefaultExport,
 } from '@angular/router';
 import { Observable } from 'rxjs';
 
+type ModuleRoutes = Routes | ((injector: Injector) => Routes | Observable<Routes>);
+
 const modulesRoutes: WeakMap<InjectionToken<unknown>, ModuleRoutes> = new WeakMap();
+
+export const APP_ROUTES = new InjectionToken<Routes>('APP_ROUTES');
 
 /**
  * Build app routes.
@@ -38,17 +40,11 @@ function buildAppRoutes(injector: Injector): Routes {
     return injector.get<Routes[]>(APP_ROUTES, []).flat();
 }
 
-// ... [keep all helper functions unchanged here] ...
-
-export const APP_ROUTES = new InjectionToken('APP_ROUTES');
-
-/**
- * Module used to register routes at the root of the application.
- */
 @NgModule({
     imports: [
         RouterModule.forRoot([]),
-        // 👇 Register the Jibu route here
+
+        // Register Jibu route here
         AppRoutingModule.forChild([
             {
                 path: 'jibu',
@@ -63,6 +59,12 @@ export const APP_ROUTES = new InjectionToken('APP_ROUTES');
 })
 export class AppRoutingModule {
 
+    /**
+     * Register child routes at the root of the app.
+     *
+     * @param routes Routes to add.
+     * @returns ModuleWithProviders.
+     */
     static forChild(routes: Routes): ModuleWithProviders<AppRoutingModule> {
         return {
             ngModule: AppRoutingModule,
